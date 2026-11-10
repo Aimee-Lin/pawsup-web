@@ -1,0 +1,7 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import {petFields,petFromRow} from '../src/services/petMapping.ts'
+import {validRegistrationPassword} from '../src/services/passwordPolicy.ts'
+test('registration accepts exactly six characters',()=>{assert.equal(validRegistrationPassword('12345'),false);assert.equal(validRegistrationPassword('123456'),true);assert.equal(validRegistrationPassword('1234567'),false);assert.equal(validRegistrationPassword('Ab12!?'),true)})
+test('pet field mapping excludes identity, base64 data and server identifiers',()=>{const fields=petFields({name:' Cloud ',species:'猫',breed:'Ragdoll',age:'2',bio:'friendly',owner_id:'forged',photo:'data:image/jpeg;base64,x'});assert.equal(fields.name,'Cloud');assert.equal(fields.species,'cat');assert.ok(!('owner_id' in fields));assert.ok(!('photo' in fields));assert.throws(()=>petFields({name:' ',species:'狗',breed:'',age:'',bio:''}))})
+test('remote pet keeps server UUID ownership and uses a signed image',async()=>{const row={id:'pet',owner_id:'user-uuid',name:'Cloud',species:'cat',breed:'',age:'',bio:'',photo_path:'user-uuid/a.jpg'};const pet=await petFromRow(row,'fallback',async p=>'signed:'+p);assert.equal(pet.ownerId,'user-uuid');assert.equal(pet.photo,'signed:user-uuid/a.jpg');assert.equal(pet.photoPath,row.photo_path);const failed=await petFromRow(row,'fallback',async()=>{throw Error('denied')});assert.equal(failed.photo,'fallback');assert.equal(failed.photoPath,row.photo_path)})

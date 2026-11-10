@@ -1,0 +1,6 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import {filterProducts,cartSummary} from '../src/services/products.ts'
+test('catalog combines search, category and favorites',()=>{assert.equal(filterProducts('all','冻干','default').length,1);assert.equal(filterProducts('travel','','default')[0].id,'carrier');assert.equal(filterProducts('litter','','default').length,0);assert.deepEqual(filterProducts('all','','default',true,['toy']).map(p=>p.id),['toy']);assert.equal(filterProducts('snack','背包','default').length,0)})
+test('price and rating sorting use numeric values without changing catalog',()=>{const original=filterProducts('all','','default').map(p=>p.id);assert.equal(filterProducts('all','','price-asc')[0].id,'toy');assert.equal(filterProducts('all','','price-desc')[0].id,'carrier');assert.equal(filterProducts('all','','rating')[0].rating,4.9);assert.deepEqual(filterProducts('all','','default').map(p=>p.id),original)})
+test('cart ignores invalid records, caps quantity and totals in cents',()=>{assert.equal(cartSummary({snack:3,toy:2}).total,179.5);assert.equal(cartSummary({snack:3,toy:2}).count,5);assert.equal(cartSummary({unknown:2,snack:-1,toy:1.5}).count,0);assert.equal(cartSummary({toy:1000}).count,99);assert.equal(cartSummary({}).total,0)})

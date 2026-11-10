@@ -1,0 +1,3 @@
+import type {ServiceApplication} from '../types.ts'
+export interface RemoteApplicationRow {id:string;applicant_id:string;post_id:string;direction:'buyer'|'provider';status:'pending'|'cancelled';created_at:string;posts:{title:string;owner_id:string}|null}
+export function applicationFromRow(row:RemoteApplicationRow,userId:string,names:Map<string,string>):ServiceApplication{return {id:row.id,remote:true,applicantId:row.applicant_id,received:row.applicant_id!==userId,applicantName:names.get(row.applicant_id)||'铲屎官',postId:row.post_id,title:row.posts?.title||'帖子已下架或不可见',direction:row.direction,status:row.status,createdAt:Date.parse(row.created_at)}}

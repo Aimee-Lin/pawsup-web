@@ -1,0 +1,2 @@
+import {image} from '../stores/community'
+export const samplePets=[{id:'demo-cloud',name:'云朵',species:'猫',breed:'布偶猫',age:'2 岁',photo:image('pet-yunduo'),bio:'性格安静，适合咖啡馆与短途散步。'},{id:'demo-pudding',name:'布丁',species:'狗',breed:'柴犬',age:'1 岁',photo:image('pet-buding'),bio:'活泼亲人，喜欢草坪和户外活动。'},{id:'demo-fog',name:'雾雾',species:'猫',breed:'英国短毛猫',age:'3 岁',photo:image('pet-wuwu'),bio:'温柔安静，享受悠闲时光。'},{id:'demo-cotton',name:'棉花',species:'狗',breed:'比熊犬',age:'2 岁',photo:image('pet-mianhua'),bio:'热爱散步，喜欢和朋友一起玩耍。'}]

@@ -1,0 +1,2 @@
+export interface RemoteProfileRow {id:string;display_name:string;avatar_path:string|null;bio:string}
+export function profileFields(name:string,bio:string,avatarPath:string|null){const display_name=name.trim();const text=bio.trim();if(!display_name||[...display_name].length>24)throw Error('昵称请填写 1 到 24 个字');if([...text].length>100)throw Error('简介不能超过 100 个字');return {display_name,bio:text,avatar_path:avatarPath}}
