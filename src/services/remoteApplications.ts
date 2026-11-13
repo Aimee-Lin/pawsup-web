@@ -66,7 +66,11 @@ export async function cancelServiceIntent(id:string){
 }
 
 
-export const intentMessagingEnabled=!!cloudApp
+const localApi = /^http:\/\/(127\.0\.0\.1|localhost):54321\/?$/.test(import.meta.env.VITE_SUPABASE_URL || '')
+export const intentMessagingEnabled=!!(cloudApp||(supabase&&localApi))
+function intentMessagesTable(){
+ return cloudApp?cloudbaseTable('pawsup_intent_messages'):supabase!.from('intent_messages')
+}
 export interface IntentMessage {
  id:string
  sender_id:string
@@ -75,8 +79,8 @@ export interface IntentMessage {
 }
 
 export async function loadIntentMessages(applicationId:string){
- await requireCloudbaseUser(store.profile?.id)
- const {data,error}=await cloudbaseTable('pawsup_intent_messages')
+ await applicationUser()
+ const {data,error}=await intentMessagesTable()
   .select('id,sender_id,content,created_at').eq('application_id',applicationId)
   .order('created_at',{ascending:false}).order('id',{ascending:false}).limit(100)
  if(error)throw error
@@ -84,8 +88,8 @@ export async function loadIntentMessages(applicationId:string){
 }
 
 export async function sendIntentMessage(applicationId:string,content:string){
- await requireCloudbaseUser(store.profile?.id)
- const {error}=await cloudbaseTable('pawsup_intent_messages')
+ await applicationUser()
+ const {error}=await intentMessagesTable()
   .insert({application_id:applicationId,content:content.trim()})
  if(error)throw error
 }

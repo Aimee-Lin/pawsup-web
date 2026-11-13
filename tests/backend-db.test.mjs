@@ -19,6 +19,7 @@ await db.exec(`
 `)
 const sqlPaths=process.env.PAWS_BOOTSTRAP_TEST==='1'?['../supabase/bootstrap.sql']:['../supabase/migrations/202611090001_core.sql','../supabase/migrations/202611090002_storage.sql','../supabase/seed.sql']
 for(const path of sqlPaths){try{await db.exec(await fs.readFile(new URL(path,import.meta.url),'utf8'))}catch(e){throw new Error(`${path}: ${e.message} (position ${e.position})`)}}
+await db.exec(await fs.readFile(new URL('../supabase/migrations/202611100001_local_service_messages.sql',import.meta.url),'utf8'))
 await db.query('insert into auth.users(id,raw_user_meta_data) values ($1,$3),($2,$4)',[A,B,JSON.stringify({name:'User A'}),JSON.stringify({name:'User B'})])
 async function as(id,sql){await db.exec(`reset role;set role authenticated;set request.jwt.claim.sub='${id}';`);return db.exec(sql)}
 async function denied(id,sql){await assert.rejects(()=>as(id,sql))}
@@ -58,8 +59,15 @@ test('service intentions validate direction, actors, duplicates and cancellation
  await as(B,`insert into public.service_applications(post_id,direction) values('66666666-6666-4666-8666-666666666666','buyer')`)
  await denied(B,`insert into public.service_applications(post_id,direction) values('66666666-6666-4666-8666-666666666666','buyer')`)
  assert.equal(count(await as(A,`update public.service_applications set status='cancelled' returning id`)),0)
+ const message = `insert into public.intent_messages(application_id,content) select id,'Hello' from public.service_applications`
+ await as(B,message)
+ assert.equal(count(await as(A,'select * from public.intent_messages')),1)
+ await as(A,message)
+ await denied(A,`insert into public.intent_messages(application_id,sender_id,content) select id,'${B}','forged' from public.service_applications`)
  await as(B,`update public.service_applications set status='cancelled'`)
  assert.equal(count(await as(B,`update public.service_applications set status='pending' returning id`)),0)
+ await denied(B,message)
+ assert.equal(count(await as(B,'select * from public.intent_messages')),2)
 })
 test('private media is isolated and published post images alone become readable',async()=>{
  await as(A,`insert into storage.objects(bucket_id,name) values('pet-photos','${A}/pet.jpg'),('post-images','${A}/post.jpg')`)

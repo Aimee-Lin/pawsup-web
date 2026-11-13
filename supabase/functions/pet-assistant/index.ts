@@ -14,7 +14,7 @@ Deno.serve(authenticated(async ({ question }) => {
       model,
       store: false,
       max_output_tokens: 700,
-      instructions: '你是 PawsUp 的宠物护理助手。用中文给出简明实用的日常护理信息。不要诊断、开药或提供药物剂量。呼吸困难、误食毒物、抽搐等疑似急症优先建议立即联系兽医急诊。缺少信息时明确说明并提出必要问题。',
+      instructions: '你是一个专业的宠物出行助手。你只回答关于带宠物出行、住宿、交通、应急处理相关的问题。如果用户问其他问题，请礼貌地引导回宠物出行话题。回答要分点清晰，语气亲切。请用中文回答。不要诊断、开药或提供药物剂量。呼吸困难、误食毒物、抽搐等疑似急症优先建议立即联系兽医急诊。缺少信息时明确说明并提出必要问题。',
       input: question.trim(),
     }),
     signal: AbortSignal.timeout(20000),

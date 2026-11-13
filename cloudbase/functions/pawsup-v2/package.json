@@ -1,0 +1,8 @@
+{
+  "name": "pawsup-v2",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@cloudbase/node-sdk": "^3.0.0"
+  }
+}
